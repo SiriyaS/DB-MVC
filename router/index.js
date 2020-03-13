@@ -35,17 +35,31 @@ app.post('/deleteProfile', async function(req,res){
 })
 
 // Edit Document
-app.post('/updateProfile', async function(req,res){
-    var result = await new record().updateProfile(req.body)
-    console.log("Update Profile Success")
+// app.post('/updateProfile', async function(req,res){
+//     var result = await new record().updateProfile(req.body)
+//     console.log("Update Profile Success")
+//     res.status(200).json(result)  
+// })
+
+// Edit grade
+app.post('/updateGrade', async function(req,res){
+    var result = await new record().updateGrade(req.body)
+    console.log("Update Grade Success")
     res.status(200).json(result)  
 })
 
-app.post('/createFaculty', async function (req,res) {
-    var result = await new record().createFaculty(req.body)
-    console.log("Create Faculty Success")
-    res.status(201).json(result)  
+// Edit work_status
+app.post('/updateStatus', async function(req,res){
+    var result = await new record().updateStatus(req.body)
+    console.log("Update Status Success")
+    res.status(200).json(result)  
 })
+
+// app.post('/createFaculty', async function (req,res) {
+//     var result = await new record().createFaculty(req.body)
+//     console.log("Create Faculty Success")
+//     res.status(201).json(result)  
+// })
 
 
 module.exports = app
