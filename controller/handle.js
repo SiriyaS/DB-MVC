@@ -1,8 +1,8 @@
-const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://admin_user:wecode1234@wecode-o32ec.gcp.mongodb.net/RECORD?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true });
-
-var moment = require('moment');
+// const MongoClient = require('mongodb').MongoClient;
+// const uri = "mongodb+srv://admin_user:wecode1234@wecode-o32ec.gcp.mongodb.net/RECORD?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true });
+//
+// var moment = require('moment');
 
 var sql = require("mssql");
 // config for your database
@@ -28,7 +28,7 @@ class account{
         var acc_no = body.account_no;
         var pwd = body.password;
         var amount = body.amount;
-        var acc = request.query(`SELECT password FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
+        var acc = await request.query(`SELECT password FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
         if(pwd != acc.recordset[0].password){
             var message = {
                 message: "รหัสผ่านไม่ถูกต้อง"
@@ -40,6 +40,12 @@ class account{
                 message: "กรุณาฝากเงิน 100 บาท ขึ้นไป"
             }
             return[400, message];
+        }
+        if(amount%100 != 0){
+            message =  {
+                message: "ไม่สามารถฝากเงินที่เป็นรูปแบบเหรียญได้ กรุณใส่จำนวนเงินในรูปแบบธนบัตร 100 บาท ขึ้นไป"
+            }
+            return[400, message]
         }
         await request.query(`UPDATE pingDB.dbo.Bank_account
         SET account_balance = account_balance + ${amount}
@@ -55,7 +61,7 @@ class account{
         var acc_no = body.account_no;
         var pwd = body.password;
         var amount = body.amount;
-        var acc = request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
+        var acc = await request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
         if(pwd != acc.recordset[0].password){
             var message = {
                 message: "รหัสผ่านไม่ถูกต้อง"
@@ -67,6 +73,12 @@ class account{
                 message: "กรุณาถอนเงินไม่เกินจำนวนเงินที่คงเหลือในบัญชี หรือ ไม่เกินครั้งละ 20,000 บาท"
             }
             return[400, message];
+        }
+        if(amount%100 != 0){
+            message =  {
+                message: "ไม่สามารถถอนเงินที่เป็นรูปแบบเหรียญได้ กรุณใส่จำนวนเงินในรูปแบบธนบัตร 100 บาท ขึ้นไป"
+            }
+            return[400, message]
         }
         await request.query(`UPDATE pingDB.dbo.Bank_account
         SET account_balance = account_balance - ${amount}
@@ -83,7 +95,7 @@ class account{
         var pwd = body.password;
         var acc_to = body.to_account;
         var amount = body.amount;
-        var acc = request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_from}'`)
+        var acc = await request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_from}'`)
         if(pwd != acc.recordset[0].password){
             var message = {
                 message: "รหัสผ่านไม่ถูกต้อง"
@@ -112,19 +124,19 @@ class account{
         var request = new sql.Request();
         var acc_no = body.account_no;
         var pwd = body.password;
-        var acc = request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
-        console.log(acc);
-        // if(pwd != acc.recordset[0].password){
-        //     var message = {
-        //         message: "รหัสผ่านไม่ถูกต้อง"
-        //     }
-        //     return[403, message];
-        // }
-        // message = {
-        //     balance: acc.recordset[0].account_balance
-        // }
-        //
-        // return[200, message]
+        var acc = await request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
+        // console.log(acc);
+        if(pwd != acc.recordset[0].password){
+            var message = {
+                message: "รหัสผ่านไม่ถูกต้อง"
+            }
+            return[403, message];
+        }
+        message = {
+            balance: acc.recordset[0].account_balance
+        }
+
+        return[200, message]
     }
 
 }
