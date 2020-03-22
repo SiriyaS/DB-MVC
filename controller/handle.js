@@ -117,7 +117,7 @@ class record{
         return message;
     }
 
-    // 5. Update work_status
+    // 5. Delete Profile Update work_status
     async updateStatus(body){
         var id = body.id;
         var update_by = body.update_by;
