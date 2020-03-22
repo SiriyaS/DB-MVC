@@ -12,9 +12,9 @@ app.use(bodyParser.urlencoded({
 
 app.use('/', require('./router/index'));
 // url path of swagger
-// app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(3000, () => {
     console.log('Run at port 3000')
-    // console.log('[Swagger] http://localhost:3000/')
+    console.log('[Swagger] http://localhost:3000/')
 })

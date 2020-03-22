@@ -1,0 +1,221 @@
+swagger: '2.0'
+info:
+  description: ''
+  version: Vol.1
+  title: Swagger Bank_Account
+host: 'localhost:3000'
+basePath: /
+tags:
+  # - name: Bank_account
+  #   description: บัญชีธนาคารทั้งหมด
+  - name: Deposit Money
+    description: ฝากเงิน
+  - name: Withdraw Money
+    description: ถอนเงิน
+  - name: Transfer Money
+    description: โอนเงิน
+  - name: Check Account Balance
+    description: เช็คยอดคงเหลือ
+  
+schemes:
+  - http
+paths:
+  /deposit:
+    post:
+      tags:
+        - Deposit Money
+      summary: ฝากเงินเข้าบัญชีธนาคาร
+      description: ''
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: formData
+          name: account_no
+          description: เลขที่บัญชี
+          default: 2562342110001
+          type: string
+        - in: formData
+          name: password
+          description: รหัสบัญชี
+          default: 6969
+          type: string
+        - in: formData
+          name: amount
+          description: จำนวนเงินที่จะฝาก
+          type: number
+          default: 500
+        
+      responses:
+        '200':
+          description: OK
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message:  ฝากเงินเรียบร้อย
+        '400':
+          description: Bad Request
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              [message: กรุณาฝากเงิน 100 บาท ขึ้นไป,
+              message: ไม่สามารถฝากเงินที่เป็นรูปแบบเหรียญได้ กรุณาใส่จำนวนเงินในรูปแบบธนบัตร 100 บาท ขึ้นไป]
+        '403':
+          description: Forbidden
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message: รหัสผ่านไม่ถูกต้อง
+              
+  /withdraw:
+    post:
+      tags:
+        - Withdraw Money
+      summary: ถอนเงินออกจากบัญชีธนาคาร
+      description: ''
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: formData
+          name: account_no
+          description: เลขที่บัญชี
+          default: 2562342110001
+          type: string
+        - in: formData
+          name: password
+          description: รหัสบัญชี
+          default: 6969
+          type: string
+        - in: formData
+          name: amount
+          description: จำนวนเงินที่จะถอน
+          type: number
+          default: 500
+        
+      responses:
+        '200':
+          description: OK
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message:  ถอนเงินเรียบร้อย
+        '400':
+          description: Bad Request
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              [message: กรุณาถอนเงินไม่เกินจำนวนเงินที่คงเหลือในบัญชี หรือ ไม่เกินครั้งละ 20000 บาท,
+              message: ไม่สามารถถอนเงินที่เป็นรูปแบบเหรียญได้ กรุณาใส่จำนวนเงินในรูปแบบธนบัตร 100 บาท ขึ้นไป]
+        '403':
+          description: Forbidden
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message: รหัสผ่านไม่ถูกต้อง            
+              
+  /transfer:
+    post:
+      tags:
+        - Transfer Money
+      summary: โอนเงินเข้าบัญชีธนาคาร
+      description: ''
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: formData
+          name: from_account
+          description: โอนเงินจากเลขที่บัญชี
+          default: 2562342110001
+          type: string
+        - in: formData
+          name: password
+          description: รหัสบัญชี
+          default: 6969
+          type: string
+        - in: formData
+          name: to_account
+          description: โอนเงินไปยังเลขที่บัญชี
+          default: 2562342110002
+          type: string
+        - in: formData
+          name: amount
+          description: จำนวนเงินที่จะโอน
+          type: number
+          default: 500
+        
+      responses:
+        '200':
+          description: OK
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message:  โอนเงินเรียบร้อย
+        '400':
+          description: Bad Request
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message: กรุณาโอนเงินไม่เกินจำนวนเงินที่คงเหลือในบัญชี หรือ ไม่เกินครั้งละ 1,000,000 บาท
+        '403':
+          description: Forbidden
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message: รหัสผ่านไม่ถูกต้อง
+              
+  /checkBalance:
+    post:
+      tags:
+        - Check Account Balance
+      summary: เช็คยอดเงินคงเหลือในบัญชีธนาคาร
+      description: ''
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: formData
+          name: account_no
+          description: เลขที่บัญชี
+          default: 2562342110001
+          type: string
+        - in: formData
+          name: password
+          description: รหัสบัญชี
+          default: 6969
+          type: string
+        
+      responses:
+        '200':
+          description: OK
+          schema:
+            properties:
+              message:
+                type: number
+            example:
+              balance: 35,285.53
+        '403':
+          description: Forbidden
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              message: รหัสผ่านไม่ถูกต้อง
+              
+ 

@@ -3,30 +3,38 @@
   "info": {
     "description": "",
     "version": "Vol.1",
-    "title": "Swagger Student_Record"
+    "title": "Swagger Bank_Account"
   },
-  "host": "localhost:5000",
+  "host": "localhost:3000",
   "basePath": "/",
   "tags": [
     {
-      "name": "STUDENT_PROFILE",
-      "description": "รายชื่อนักเรียน"
+      "name": "Deposit Money",
+      "description": "ฝากเงิน"
     },
     {
-      "name": "FACULTY",
-      "description": "รายชื่อคณะ"
+      "name": "Withdraw Money",
+      "description": "ถอนเงิน"
+    },
+    {
+      "name": "Transfer Money",
+      "description": "โอนเงิน"
+    },
+    {
+      "name": "Check Account Balance",
+      "description": "เช็คยอดคงเหลือ"
     }
   ],
   "schemes": [
     "http"
   ],
   "paths": {
-    "/createProfile": {
+    "/deposit": {
       "post": {
         "tags": [
-          "STUDENT_PROFILE"
+          "Deposit Money"
         ],
-        "summary": "create new student profile",
+        "summary": "ฝากเงินเข้าบัญชีธนาคาร",
         "description": "",
         "consumes": [
           "application/x-www-form-urlencoded"
@@ -34,71 +42,29 @@
         "parameters": [
           {
             "in": "formData",
-            "name": "first_name",
-            "description": "student's first_name",
-            "default": "Alien",
+            "name": "account_no",
+            "description": "เลขที่บัญชี",
+            "default": 2562342110001,
             "type": "string"
           },
           {
             "in": "formData",
-            "name": "last_name",
-            "description": "student's last_name",
-            "default": "Mars",
+            "name": "password",
+            "description": "รหัสบัญชี",
+            "default": 6969,
             "type": "string"
           },
           {
             "in": "formData",
-            "name": "faculty_id",
-            "description": "student's faculty_id",
-            "type": "integer",
-            "default": 3
-          },
-          {
-            "in": "formData",
-            "name": "gender",
-            "description": "student's gender",
-            "type": "string",
-            "default": "M"
-          },
-          {
-            "in": "formData",
-            "name": "grade",
-            "description": "student's grade",
+            "name": "amount",
+            "description": "จำนวนเงินที่จะฝาก",
             "type": "number",
-            "default": 3.62
-          },
-          {
-            "in": "formData",
-            "name": "student_status",
-            "description": "student's student_status",
-            "type": "string",
-            "default": "Y"
-          },
-          {
-            "in": "formData",
-            "name": "create_by",
-            "description": "create student_record by",
-            "type": "string",
-            "default": "Ping"
-          },
-          {
-            "in": "formData",
-            "name": "update_by",
-            "description": "update student_record by",
-            "type": "string",
-            "default": "Ping"
-          },
-          {
-            "in": "formData",
-            "name": "work_status",
-            "description": "work_status",
-            "type": "string",
-            "default": "Y"
+            "default": 500
           }
         ],
         "responses": {
-          "201": {
-            "description": "Create Profile Success",
+          "200": {
+            "description": "OK",
             "schema": {
               "properties": {
                 "message": {
@@ -106,123 +72,80 @@
                 }
               },
               "example": {
-                "message": "Create Profile Success"
+                "message": "ฝากเงินเรียบร้อย"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "example": [
+                {
+                  "message": "กรุณาฝากเงิน 100 บาท ขึ้นไป"
+                },
+                {
+                  "message": "ไม่สามารถฝากเงินที่เป็นรูปแบบเหรียญได้ กรุณาใส่จำนวนเงินในรูปแบบธนบัตร 100 บาท ขึ้นไป"
+                }
+              ]
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "message": "รหัสผ่านไม่ถูกต้อง"
               }
             }
           }
         }
       }
     },
-    "/findProfile": {
+    "/withdraw": {
       "post": {
         "tags": [
-          "STUDENT_PROFILE"
+          "Withdraw Money"
         ],
-        "summary": "Get student by id",
+        "summary": "ถอนเงินออกจากบัญชีธนาคาร",
+        "description": "",
         "consumes": [
           "application/x-www-form-urlencoded"
         ],
         "parameters": [
           {
-            "name": "id",
             "in": "formData",
-            "description": "ID you want to search",
-            "type": "integer",
-            "default": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Find Profile Success",
-            "schema": {
-              "$ref": "#/definitions/res200_findProfile"
-            }
-          },
-          "404": {
-            "description": "No student found",
-            "schema": {
-              "$ref": "#/definitions/res404_findProfile"
-            }
-          }
-        }
-      }
-    },
-    "/findProfile/status": {
-      "post": {
-        "tags": [
-          "STUDENT_PROFILE"
-        ],
-        "summary": "Get student with student_status = 'Y'",
-        "parameters": [
-          {
-            "name": "faculty",
-            "in": "query",
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "All",
-                "Engineering",
-                "Architecture",
-                "Science",
-                "IT",
-                "Agro-Industry"
-              ],
-              "default": "All"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Find Profile Success",
-            "schema": {
-              "$ref": "#/definitions/res200_findProfile_status"
-            }
-          },
-          "404": {
-            "description": "No student found",
-            "schema": {
-              "$ref": "#/definitions/res404_findProfile_status"
-            }
-          }
-        }
-      }
-    },
-    "/updateGrade": {
-      "post": {
-        "tags": [
-          "STUDENT_PROFILE"
-        ],
-        "summary": "Update student grade",
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "formData",
-            "description": "student's id",
-            "type": "integer",
-            "default": 3
+            "name": "account_no",
+            "description": "เลขที่บัญชี",
+            "default": 2562342110001,
+            "type": "string"
           },
           {
-            "name": "grade",
             "in": "formData",
-            "description": "student's grade",
+            "name": "password",
+            "description": "รหัสบัญชี",
+            "default": 6969,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "amount",
+            "description": "จำนวนเงินที่จะถอน",
             "type": "number",
-            "default": 3.71
-          },
-          {
-            "name": "update_by",
-            "in": "formData",
-            "description": "update student_record by",
-            "type": "string",
-            "default": "Min"
+            "default": 500
           }
         ],
         "responses": {
           "200": {
-            "description": "Update Grade Success",
+            "description": "OK",
             "schema": {
               "properties": {
                 "message": {
@@ -230,41 +153,87 @@
                 }
               },
               "example": {
-                "message": "Update Grade Success"
+                "message": "ถอนเงินเรียบร้อย"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "example": [
+                {
+                  "message": "กรุณาถอนเงินไม่เกินจำนวนเงินที่คงเหลือในบัญชี หรือ ไม่เกินครั้งละ 20000 บาท"
+                },
+                {
+                  "message": "ไม่สามารถถอนเงินที่เป็นรูปแบบเหรียญได้ กรุณาใส่จำนวนเงินในรูปแบบธนบัตร 100 บาท ขึ้นไป"
+                }
+              ]
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "message": "รหัสผ่านไม่ถูกต้อง"
               }
             }
           }
         }
       }
     },
-    "/updateStatus": {
+    "/transfer": {
       "post": {
         "tags": [
-          "STUDENT_PROFILE"
+          "Transfer Money"
         ],
-        "summary": "Delete profile, update Work_status",
+        "summary": "โอนเงินเข้าบัญชีธนาคาร",
+        "description": "",
         "consumes": [
           "application/x-www-form-urlencoded"
         ],
         "parameters": [
           {
-            "name": "id",
             "in": "formData",
-            "description": "student's id",
-            "type": "integer",
-            "default": 4
+            "name": "from_account",
+            "description": "โอนเงินจากเลขที่บัญชี",
+            "default": 2562342110001,
+            "type": "string"
           },
           {
-            "name": "update_by",
             "in": "formData",
-            "description": "update student_record by",
-            "type": "string",
-            "default": "Min"
+            "name": "password",
+            "description": "รหัสบัญชี",
+            "default": 6969,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "to_account",
+            "description": "โอนเงินไปยังเลขที่บัญชี",
+            "default": 2562342110002,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "amount",
+            "description": "จำนวนเงินที่จะโอน",
+            "type": "number",
+            "default": 500
           }
         ],
         "responses": {
           "200": {
-            "description": "Delete profile, update Work_status Success",
+            "description": "OK",
             "schema": {
               "properties": {
                 "message": {
@@ -272,131 +241,93 @@
                 }
               },
               "example": {
-                "message": "Delete profile, update Work_status Success"
+                "message": "โอนเงินเรียบร้อย"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "message": "กรุณาโอนเงินไม่เกินจำนวนเงินที่คงเหลือในบัญชี หรือ ไม่เกินครั้งละ 1,000,000 บาท"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "message": "รหัสผ่านไม่ถูกต้อง"
               }
             }
           }
         }
       }
-    }
-  },
-  "definitions": {
-    "res200_findProfile": {
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "first_name": {
-          "type": "string"
-        },
-        "last_name": {
-          "type": "string"
-        },
-        "faculty_id": {
-          "type": "integer"
-        },
-        "gender": {
-          "type": "string"
-        },
-        "grade": {
-          "type": "number"
-        },
-        "student_status": {
-          "type": "string"
-        },
-        "create_by": {
-          "type": "string"
-        },
-        "update_by": {
-          "type": "string"
-        },
-        "work_status": {
-          "type": "string"
-        }
-      },
-      "example": {
-        "id": 1,
-        "first_name": "Manud",
-        "last_name": "Earth",
-        "faculty_id": 1,
-        "gender": "M",
-        "dmission_date": "2020-03-13T11:00:52.000Z",
-        "grade": 3.89,
-        "student_status": "Y",
-        "create_by": "Ping",
-        "create_date": "2020-03-13T11:00:52.000Z",
-        "update_by": "Min",
-        "update_date": "2020-03-13T12:24:12.000Z",
-        "work_status": "Y"
-      }
     },
-    "res404_findProfile": {
-      "properties": {
-        "message": {
-          "type": "string"
+    "/checkBalance": {
+      "post": {
+        "tags": [
+          "Check Account Balance"
+        ],
+        "summary": "เช็คยอดเงินคงเหลือในบัญชีธนาคาร",
+        "description": "",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "account_no",
+            "description": "เลขที่บัญชี",
+            "default": 2562342110001,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "password",
+            "description": "รหัสบัญชี",
+            "default": 6969,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "number"
+                }
+              },
+              "example": {
+                "balance": "35,285.53"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "example": {
+                "message": "รหัสผ่านไม่ถูกต้อง"
+              }
+            }
+          }
         }
-      },
-      "example": {
-        "message": "No student found"
-      }
-    },
-    "res200_findProfile_status": {
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "first_name": {
-          "type": "string"
-        },
-        "last_name": {
-          "type": "string"
-        },
-        "faculty_id": {
-          "type": "integer"
-        },
-        "gender": {
-          "type": "string"
-        },
-        "grade": {
-          "type": "number"
-        },
-        "student_status": {
-          "type": "string"
-        },
-        "create_by": {
-          "type": "string"
-        },
-        "update_by": {
-          "type": "string"
-        },
-        "work_status": {
-          "type": "string"
-        }
-      },
-      "example": {
-        "id": 1,
-        "first_name": "Manud",
-        "last_name": "Earth",
-        "faculty_id": 1,
-        "gender": "M",
-        "dmission_date": "2020-03-13T11:00:52.000Z",
-        "grade": 3.89,
-        "student_status": "Y",
-        "create_by": "Ping",
-        "create_date": "2020-03-13T11:00:52.000Z",
-        "update_by": "Min",
-        "update_date": "2020-03-13T12:24:12.000Z",
-        "work_status": "Y"
-      }
-    },
-    "res404_findProfile_status": {
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      },
-      "example": {
-        "message": "No student found"
       }
     }
   }
