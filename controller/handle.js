@@ -26,13 +26,11 @@ class record{
     // --------------------------------------------------- MS SQL ----------------------------------------------------------------------------------------
     // 1.Create student
     async createProfile(body){
-       
-        var id = body.id;
         var first_name = body.first_name;
         var last_name = body.last_name;
         var faculty_id = body.faculty_id;
         var gender = body.gender;
-        var dmission_date = moment().format("YYYY-MM-DD kk:mm:ss");
+        var admission_date = moment().format("YYYY-MM-DD kk:mm:ss");
         var grade = body.grade;
         var student_status = body.student_status;
         var create_by = body.create_by;
@@ -42,10 +40,10 @@ class record{
         var work_status = body.work_status;
         
         var request = new sql.Request();
-        await request.query(`INSERT INTO pingDB.dbo.STUDENT_PROFILE (id, first_name, last_name, faculty_id,
-                 gender, dmission_date, grade, student_status, create_by, create_date,
+        await request.query(`INSERT INTO pingDB.dbo.STUDENT_PROFILE (first_name, last_name, faculty_id,
+                 gender, admission_date, grade, student_status, create_by, create_date,
                  update_by, update_date, work_status)
-                 VALUES (${id}, '${first_name}', '${last_name}', ${faculty_id}, '${gender}', '${dmission_date}',
+                 VALUES ('${first_name}', '${last_name}', ${faculty_id}, '${gender}', '${admission_date}',
                  ${grade}, '${student_status}', '${create_by}', '${create_date}', '${update_by}', '${update_date}', '${work_status}')`);
         var message = {
             message: "Create Profile Success"
@@ -57,22 +55,50 @@ class record{
     async findProfile(id){
         var request = new sql.Request();
         var data = await request.query(`SELECT id, first_name, last_name, faculty_id,
-                             gender, dmission_date, grade, student_status, create_by, create_date,
+                             gender, admission_date, grade, student_status, create_by, create_date,
                              update_by, update_date, work_status
                              FROM pingDB.dbo.STUDENT_PROFILE
                              WHERE id = ${id}`);
-        return data.recordset;
+        if(data.recordset.length == 0){
+            var message = {
+                message: "No student Found"
+            }
+            return[404, message]
+        }
+        return [200, data.recordset];
     }
 
-    // 3. Get student status = Y (show all)
-    async findProfile_status(body){
+    // 3. Get student by student_status = Y 0 = show all
+    async findProfile_status(faculty){
         var request = new sql.Request();
-        var data = await request.query(`SELECT id, first_name, last_name, faculty_id,
-                             gender, dmission_date, grade, student_status, create_by, create_date,
+        if(faculty == "All") var faculty_id = 0;
+        else{
+            var id = await request.query(`SELECT id FROM pingDB.dbo.FACULTY WHERE name = '${faculty}'`);
+            faculty_id = id.recordset[0].id;
+        }
+        console.log(faculty_id)
+        if(faculty_id == 0){
+            var command = `SELECT id, first_name, last_name, faculty_id,
+                             gender, admission_date, grade, student_status, create_by, create_date,
                              update_by, update_date, work_status
                              FROM pingDB.dbo.STUDENT_PROFILE
-                             WHERE student_status = 'Y'`);
-        return data.recordset;
+                             WHERE student_status = 'Y'`;
+        }
+        else{
+            command = `SELECT id, first_name, last_name, faculty_id,
+                             gender, admission_date, grade, student_status, create_by, create_date,
+                             update_by, update_date, work_status
+                             FROM pingDB.dbo.STUDENT_PROFILE
+                             WHERE student_status = 'Y' AND faculty_id = ${faculty_id}`;
+        }
+        var data = await request.query(command);
+        if(data.recordset.length == 0){
+            var message = {
+                message: "No student Found"
+            }
+            return[404, message]
+        }
+        return [200,data.recordset];
     }
 
     // 4. Update grade by id
@@ -94,28 +120,27 @@ class record{
     // 5. Update work_status
     async updateStatus(body){
         var id = body.id;
-        var work_status = body.work_status;
         var update_by = body.update_by;
         var update_date = moment().format("YYYY-MM-DD kk:mm:ss");
         var request = new sql.Request();
         await request.query(`UPDATE pingDB.dbo.STUDENT_PROFILE
-                 SET update_by = '${update_by}', update_date = '${update_date}', work_status = ${work_status}
+                 SET update_by = '${update_by}', update_date = '${update_date}', work_status = 'N'
                  WHERE id = ${id}`);
         var message = {
-            message: "Update Work_status Success"
+            message: "Delete Profile Update Work_status Success"
         }
         return message;
     }
 
     // delete by id
-    async deleteProfile(id){
-        await request.query(`DELETE FROM pingDB.dbo.STUDENT_PROFILE
-                            WHERE is = ${id}`);
-        var message = {
-            message: "Delete Profile Success"
-        }
-        return message;
-    }
+    // async deleteProfile(id){
+    //     await request.query(`DELETE FROM pingDB.dbo.STUDENT_PROFILE
+    //                         WHERE is = ${id}`);
+    //     var message = {
+    //         message: "Delete Profile Success"
+    //     }
+    //     return message;
+    // }
 
     // --------------------------------------------------- MongoDB ----------------------------------------------------------------------------------------
     // 1.Create student
