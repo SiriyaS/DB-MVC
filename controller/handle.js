@@ -22,197 +22,111 @@ var err = sql.connect(config)
 if (err) console.log(err);
 
 
-class record{
-    // --------------------------------------------------- MS SQL ----------------------------------------------------------------------------------------
-    // 1.Create student
-    async createProfile(body){
-       
-        var id = body.id;
-        var first_name = body.first_name;
-        var last_name = body.last_name;
-        var faculty_id = body.faculty_id;
-        var gender = body.gender;
-        var dmission_date = moment().format("YYYY-MM-DD kk:mm:ss");
-        var grade = body.grade;
-        var student_status = body.student_status;
-        var create_by = body.create_by;
-        var create_date = moment().format("YYYY-MM-DD kk:mm:ss");
-        var update_by = body.update_by;
-        var update_date = moment().format("YYYY-MM-DD kk:mm:ss");
-        var work_status = body.work_status;
-        
+class account{
+    async deposit(body){
         var request = new sql.Request();
-        await request.query(`INSERT INTO pingDB.dbo.STUDENT_PROFILE (id, first_name, last_name, faculty_id,
-                 gender, dmission_date, grade, student_status, create_by, create_date,
-                 update_by, update_date, work_status)
-                 VALUES (${id}, '${first_name}', '${last_name}', ${faculty_id}, '${gender}', '${dmission_date}',
-                 ${grade}, '${student_status}', '${create_by}', '${create_date}', '${update_by}', '${update_date}', '${work_status}')`);
-        var message = {
-            message: "Create Profile Success"
+        var acc_no = body.account_no;
+        var pwd = body.password;
+        var amount = body.amount;
+        var acc = request.query(`SELECT password FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
+        if(pwd != acc.recordset[0].password){
+            var message = {
+                message: "รหัสผ่านไม่ถูกต้อง"
+            }
+            return[403, message];
         }
-        return message;
-    }
-
-    // 2.Get student by id
-    async findProfile(id){
-        var request = new sql.Request();
-        var data = await request.query(`SELECT id, first_name, last_name, faculty_id,
-                             gender, dmission_date, grade, student_status, create_by, create_date,
-                             update_by, update_date, work_status
-                             FROM pingDB.dbo.STUDENT_PROFILE
-                             WHERE id = ${id}`);
-        return data.recordset;
-    }
-
-    // 3. Get student status = Y (show all)
-    async findProfile_status(body){
-        var request = new sql.Request();
-        var data = await request.query(`SELECT id, first_name, last_name, faculty_id,
-                             gender, dmission_date, grade, student_status, create_by, create_date,
-                             update_by, update_date, work_status
-                             FROM pingDB.dbo.STUDENT_PROFILE
-                             WHERE student_status = 'Y'`);
-        return data.recordset;
-    }
-
-    // 4. Update grade by id
-    async updateGrade(body){
-        var id = body.id;
-        var grade = body.grade;
-        var update_by = body.update_by;
-        var update_date = moment().format("YYYY-MM-DD kk:mm:ss");
-        var request = new sql.Request();
-        await request.query(`UPDATE pingDB.dbo.STUDENT_PROFILE
-                 SET grade = ${grade}, update_by = '${update_by}', update_date = '${update_date}'
-                 WHERE id = ${id}`);
-        var message = {
-            message: "Update Grade Success"
+        if(amount < 100){
+            message = {
+                message: "กรุณาฝากเงิน 100 บาท ขึ้นไป"
+            }
+            return[400, message];
         }
-        return message;
+        await request.query(`UPDATE pingDB.dbo.Bank_account
+        SET account_balance = account_balance + ${amount}
+        WHERE account_no = '${acc_no}'`);
+        message = {
+            message: "ฝากเงินเรียบร้อย"
+        }
+        return[200, message]
     }
 
-    // 5. Update work_status
-    async updateStatus(body){
-        var id = body.id;
-        var work_status = body.work_status;
-        var update_by = body.update_by;
-        var update_date = moment().format("YYYY-MM-DD kk:mm:ss");
+    async withdraw(body){
         var request = new sql.Request();
-        await request.query(`UPDATE pingDB.dbo.STUDENT_PROFILE
-                 SET update_by = '${update_by}', update_date = '${update_date}', work_status = ${work_status}
-                 WHERE id = ${id}`);
-        var message = {
-            message: "Update Work_status Success"
+        var acc_no = body.account_no;
+        var pwd = body.password;
+        var amount = body.amount;
+        var acc = request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
+        if(pwd != acc.recordset[0].password){
+            var message = {
+                message: "รหัสผ่านไม่ถูกต้อง"
+            }
+            return[403, message];
         }
-        return message;
+        if(amount > 20000 || amount > acc.recordset[0].account_balance){
+            message = {
+                message: "กรุณาถอนเงินไม่เกินจำนวนเงินที่คงเหลือในบัญชี หรือ ไม่เกินครั้งละ 20,000 บาท"
+            }
+            return[400, message];
+        }
+        await request.query(`UPDATE pingDB.dbo.Bank_account
+        SET account_balance = account_balance - ${amount}
+        WHERE account_no = '${acc_no}'`);
+        message = {
+            message: "ถอนเงินเรียบร้อย"
+        }
+        return[200, message]
     }
 
-    // delete by id
-    async deleteProfile(id){
-        await request.query(`DELETE FROM pingDB.dbo.STUDENT_PROFILE
-                            WHERE is = ${id}`);
-        var message = {
-            message: "Delete Profile Success"
+    async transfer(body){
+        var request = new sql.Request();
+        var acc_from = body.from_account;
+        var pwd = body.password;
+        var acc_to = body.to_account;
+        var amount = body.amount;
+        var acc = request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_from}'`)
+        if(pwd != acc.recordset[0].password){
+            var message = {
+                message: "รหัสผ่านไม่ถูกต้อง"
+            }
+            return[403, message];
         }
-        return message;
+        if(amount > 1000000 || amount > acc.recordset[0].account_balance){
+            message = {
+                message: "กรุณาโอนเงินไม่เกินจำนวนเงินที่คงเหลือในบัญชี หรือ ไม่เกินครั้งละ 1,000,000 บาท"
+            }
+            return[400, message];
+        }
+        await request.query(`UPDATE pingDB.dbo.Bank_account
+        SET account_balance = account_balance - ${amount}
+        WHERE account_no = '${acc_from}'`);
+        await request.query(`UPDATE pingDB.dbo.Bank_account
+        SET account_balance = account_balance + ${amount}
+        WHERE account_no = '${acc_to}'`);
+        message = {
+            message: "โอนเงินเรียบร้อย"
+        }
+        return[200, message]
     }
 
-    // --------------------------------------------------- MongoDB ----------------------------------------------------------------------------------------
-    // 1.Create student
-    // async createProfile(body){
-    //     client.connect(err => {
-    //         const collection = client.db("RECORD").collection("STUDENT_PROFILE");
-
-    //         var id = body.id;
-    //         var first_name = body.first_name;
-    //         var last_name = body.last_name;
-    //         var faculty_id = body.faculty_id;
-    //         var gender = body.gender;
-    //         var dmission_date = moment().format("YYYY-MM-DD kk:mm:ss");
-    //         var grade = body.grade;
-    //         var student_status = body.student_status;
-    //         var create_by = body.create_by;
-    //         var create_date = moment().format("YYYY-MM-DD kk:mm:ss");
-    //         var update_by = body.update_by;
-    //         var update_date = moment().format("YYYY-MM-DD kk:mm:ss");
-    //         var work_status = body.work_status;
-       
-    //         collection.insertOne ({ _id: id, first_name: first_name, last_name: last_name, faculty_id: faculty_id, gender: gender,
-    //                                 dmission_date: dmission_date, grade: grade, student_status: student_status, create_by: create_by,
-    //                                 create_date: create_date, update_by: update_by, update_date: update_date, work_status: work_status})
-    //         client.close();
-    //     });
-    //     var message = {
-    //         message: "Create Profile Success"
-    //     }
-    //     return message;
-    // }
-
-    // // 2. Get student by id
-    // async findProfile(id) {
-    //     await client.connect();
-    //     const collection = await client.db("RECORD").collection("STUDENT_PROFILE");
-    //     data = await  collection.findOne({ _id: id });
-    //     await client.close();
-    //     return data ;
-    // }
-
-    // // 3.Get student 'status = Y'
-    // async findProfile_status(body){
-    //     await client.connect();
-    //     const collection = await client.db("RECORD").collection("STUDENT_PROFILE");
-    //     // find แล้วก็เอามารวมเป็นอาเรย์ก้อนเดียว
-    //     data = await  collection.find({ student_status: body.status }).toArray();
-    //     await client.close();
-    //     return data ;
-    // }
-
-    // async deleteProfile(id) {
-    //     client.connect(err => {
-    //         const collection = client.db("RECORD").collection("STUDENT_PROFILE");
-
-    //         collection.deleteOne ({ _id: id})
-    //         client.close();
-    //     });
-    //     var message = {
-    //         message: "Delete Profile Success"
-    //     }
-    //     return message;
-    // }
-
-    // async updateProfile(body) {
-    //     client.connect(err => {
-    //         const collection = client.db("RECORD").collection("STUDENT_PROFILE");
-
-    //         var update_date = moment().format("YYYY-MM-DD kk:mm:ss")
-    //         // update grade
-    //         var newValue = { $set: { grade: body.grade, 
-    //                         update_by: body.update_by, update_date: update_date} };
-
-    //         collection.updateOne ({ _id: body.id},newValue)
-    //         client.close();
-    //     });
-    //     var message = {
-    //         message: "Update Profile Success"
-    //     }
-    //     return message;
-    // }
-
-    // async createFaculty(body){
-    //     client.connect(err => {
-    //         const collection = client.db("RECORD").collection("FACULTY");
-    //         var id = body.id;
-    //         var name = body.name;
-    //         collection.insertOne({_id: id, name: name})
-    //         client.close();
-    //     })
-    //     var message = {
-    //         message: "Create Faculty Success"
-    //     }
-    //     return message;
-    // }
-
+    async checkBalance(body){
+        var request = new sql.Request();
+        var acc_no = body.account_no;
+        var pwd = body.password;
+        var acc = request.query(`SELECT password, account_balance FROM pingDB.dbo.Bank_account WHERE account_no = '${acc_no}'`)
+        console.log(acc);
+        // if(pwd != acc.recordset[0].password){
+        //     var message = {
+        //         message: "รหัสผ่านไม่ถูกต้อง"
+        //     }
+        //     return[403, message];
+        // }
+        // message = {
+        //     balance: acc.recordset[0].account_balance
+        // }
+        //
+        // return[200, message]
+    }
 
 }
 
-module.exports = record;
+module.exports = account;
