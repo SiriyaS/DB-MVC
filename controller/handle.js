@@ -1,7 +1,4 @@
-// const MongoClient = require('mongodb').MongoClient;
-// const uri = "mongodb+srv://admin_user:wecode1234@wecode-o32ec.gcp.mongodb.net/RECORD?retryWrites=true&w=majority";
-// const client = new MongoClient(uri, { useNewUrlParser: true });
-//
+
 var moment = require('moment');
 // var date = moment().format("YYYY-MM-DD kk:mm:ss");
 
