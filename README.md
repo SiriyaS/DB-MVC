@@ -52,6 +52,7 @@ var sql = require("mssql");
 >
 > ได้ log in เข้ามาแล้วรึเปล่า
 
+ - Update Status จาก 'N' เป็น 'Y'
 ```
 UPDATE pingDB.dbo.STUDENTS SET Status = 'Y' WHERE SID = '${id}'
 ```
