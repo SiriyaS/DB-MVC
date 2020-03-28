@@ -61,6 +61,7 @@ UPDATE pingDB.dbo.STUDENTS SET Status = 'Y' WHERE SID = '${id}'
  - จำนวนนักศึกษาที่ log in และ ไม่ได้ log in หาได้จาก
 ```
 SELECT COUNT(Status) as total FROM pingDB.dbo.STUDENTS WHERE Status = 'Y'
+
 SELECT COUNT(Status) as total FROM pingDB.dbo.STUDENTS WHERE Status = 'N'
 ```
  - รายชื่อนักศึกษาที่ไม่ได้ log in เข้ามา หาได้จาก
