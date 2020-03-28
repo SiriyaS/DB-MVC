@@ -2,8 +2,8 @@ swagger: '2.0'
 info:
   description: ''
   version: Vol.1
-  title: Swagger Bank_Account
-host: 'localhost:3000'
+  title: Swagger Student Login
+host: 'localhost:8000'
 basePath: /
 tags:
   - name: Student Login
@@ -52,7 +52,8 @@ paths:
                 type: string
             example:
               [message: Don't have this account please Sign Up,
-              message: Already Login]
+              message: Already Login,
+              message: Please use cs-kmitl mail]
         '403':
           description: Forbidden
           schema:

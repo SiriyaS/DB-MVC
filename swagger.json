@@ -75,6 +75,9 @@
                 },
                 {
                   "message": "Already Login"
+                },
+                {
+                  "message": "Please use cs-kmitl mail"
                 }
               ]
             }
