@@ -1,8 +1,8 @@
 # DB-MVC
 
-## MVC2803-2
+### MVC2803-2
 
-## Database : MS SQL Server
+### Database : MS SQL Server
 ## Create table
 สร้างตารางเก็บข้อมูล account ของนักศึกษาแต่ละคนชื่อ STUDENTS
 โดยมี field ชื่อ SID, Password, Firstname, Lastname, Status ซึ่ง SID เป็น Primary Key
@@ -41,10 +41,15 @@ var sql = require("mssql");
 #### - Config and Connect DB 
 #### - Logic
 ***function login*** ส่ง email and password มาใน body เมื่อมี account อยู่ใน DB และ email and password ถูกต้องก็ให้ Update Status เป็น 'Y'
+
 > เงื่อนไขที่ตั้งเช็คไว้ :
+>
 > email เป็น cskmitl.ac.th รึเปล่า
+>
 > มี account อยู่ใน DB รึเปล่า
+>
 > password ที่ใส่เข้ามา ตรงกับ password ใน DB รึเปล่า
+>
 > ได้ log in เข้ามาแล้วรึเปล่า
 
 ```
