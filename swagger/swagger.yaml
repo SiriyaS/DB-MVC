@@ -1,0 +1,80 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "MVC-practice3"
+  title: "Word Frequency"
+host: "localhost:8000"
+basePath: "/"
+tags:
+- name: "word frequency"
+  description: "นับความถี่ของคำในข้อความ"
+schemes:
+- "http"
+paths:
+  /wordfreq:
+    post:
+      tags:
+      - "word frequency"
+      summary: "ใส่ข้อความที่ต้องการนับความถี่"
+      description: ""
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "formData"
+        name: "message"
+        description: กรอกข้อความ
+        default: Once upon a time, there are five pigs! One of the pigs said, how are you?
+        type: string
+      responses:
+        '200':
+          description: 'OK'
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                word:
+                  type: string
+                frequency:
+                  type: integer
+            example:
+              - word: once
+                frequency: 1
+              - word: upon
+                frequency: 1
+              - word: a
+                frequency: 1
+              - word: time
+                frequency: 1
+              - word: there
+                frequency: 1
+              - word: are
+                frequency: 2
+              - word: five
+                frequency: 1
+              - word: pigs
+                frequency: 2
+              - word: one
+                frequency: 1
+              - word: of
+                frequency: 1
+              - word: the
+                frequency: 1
+              - word: said
+                frequency: 1
+              - word: how
+                frequency: 1
+              - word: you
+                frequency: 1
+        '400':
+          description: 'Bad Request'
+          schema:
+            properties:
+              message:
+                type: string
+            example:
+              status: 400
+              message: 'ข้อความต้องมีความยาวระหว่าง 20 ถึง 255 ตัวอักษร'
+   

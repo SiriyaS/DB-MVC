@@ -1,126 +1,72 @@
+const data = require('../model/input.json');
+const fs = require('fs');
 
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-
-var sql = require("mssql");
-// config for your database
-var config = {
-    user: 'sa',
-    password: 'P@d0rU123',
-    server: '167.71.200.91',
-    database: 'pingDB',
-    // "options": {
-    //     "encrypt": true,
-    //     "enableArithAbort": true
-    //     },
-};
-
-// connect to your database
-var err = sql.connect(config)
-if (err) console.log(err);
-
-
-class account{
-    async login(body){
-        var request = new sql.Request();
-        // var mail = body.email;
-        var mail = body.email.split('@');
-        console.log(mail)
-        var id = mail[0];
-        var format = mail[1]
-        var pwd = body.password;
-        // var id = mail.substring(0,8);
-        var acc = await request.query(`SELECT Password, Status FROM pingDB.dbo.STUDENTS WHERE SID = '${id}'`);
-        // console.log(id);
-        // เช็คว่าเมลที่ใส่เข้ามาเป็น format ไหน
-        if(format != "cskmitl.ac.th"){
-            console.log("[Login] Wrong mail format")
-            var message = {
-                message: "Please use cs-kmitl mail"
-            }
-            return[400, message] // 400: Bad Request
-        }
-        // เช็คว่ามี account อยู่ใน DB มั้ย
-        if(acc.recordset.length == 0){
-            console.log("[Login] Don't have account")
-            var message = {
-                message: "Don't have this account, please Sign Up"
-            }
-            return[400, message] // 400: Bad Request
-        }
-        // password ที่ใส่มาไม่ตรงกับใน DB
-        if(pwd != acc.recordset[0].Password){
-            console.log("[Login] Wrong password")
-            var message = {
-                message: "Wrong Password"
-            }
-            return[403, message]; // 403: client does not have access
-        }
-        // login เข้ามาแล้วแล้วรึยัง Status = 'Y'
-        if(acc.recordset[0].Status == 'Y'){
-            console.log("[Login] Login already")
-            var message = {
-                message: "Already Login"
-            }
-            return[400, message] // 400: Bad Request
-        }
-        // Login Update Status from 'N' to 'Y'
-        await request.query(`UPDATE pingDB.dbo.STUDENTS SET Status = 'Y' WHERE SID = '${id}'`)
-        console.log("[Login] Login success")
-        var message = {
-            message: "Login Success"
-        }
-        return[200, message] // 200: OK
+class dataClean{
+    hello(){
+        console.log("how are you");
+        return "Hi!"
     }
 
-    async report(){
-        const csvWriter = createCsvWriter({
-            // file name
-            path: 'report.csv',
-            // column name
-            header: [
-                {id: 'login', title: 'Login'},
-                {id: 'notLogin', title: 'Not Login'},
-                {id: 'name', title: 'Not Login student'},
-            ]
+    async cleaning(body){
+        // เอาที่ input เข้ามาไปใส่ใน json file
+        var input = {
+            "input_string": body.message
+        };
+        const jsonString = JSON.stringify(input);
+        console.log(jsonString);
+        await fs.writeFile('./model/input.json', jsonString, function (err) {
+            if (err) throw err;
+            console.log('JSON File Replaced!');
         });
 
-        var request = new sql.Request();
-        // count Status = 'Y' column name total
-        var login = await request.query(`SELECT COUNT(Status) as total FROM pingDB.dbo.STUDENTS WHERE Status = 'Y'`);
-        // count Status = 'N' column name total
-        var notLogin = await request.query(`SELECT COUNT(Status) as total FROM pingDB.dbo.STUDENTS WHERE Status = 'N'`);
-        // select not login student's name
-        var name = await request.query(`SELECT Firstname FROM pingDB.dbo.STUDENTS WHERE Status = 'N'`);
-
-        console.log(login.recordset[0]);
-        console.log(notLogin.recordset[0]);
-        console.log(name.recordset);
-
-        // data each row
-        const data = [
-            {
-                login: login.recordset[0].total,
-                notLogin: notLogin.recordset[0].total,
-                name: name.recordset[0].Firstname,
-            },
-            {
-                name: name.recordset[1].Firstname
-            }
-        ];
-
-        // write csv file
-        csvWriter
-            .writeRecords(data)
-            .then(()=> console.log('[Report] The CSV file was written successfully'));
-
-        var message = {
-            message: "Create Report Success"
+        var inputStr = data.input_string;
+        // 1.รับข้อความอันมีความยาวไม่ต่ํากว่า 20 ตัวอักษร และไม่มากกว่า 255 ตัวอักษร (นับช่องว่าง)
+        if(inputStr.length < 20 || inputStr.length > 255){
+            var error = {
+                "status": 400,
+                "error": "ข้อความต้องมีความยาวระหว่าง 20 ถึง 255 ตัวอักษร"
+            };
+            return [400,error]
         }
-        return[200, message]
+
+        // 2.ข้อความต้องผ่านกระบวนการทําความสะอาดข้อมูล หรือ Data Cleansing ก่อน ด้วยการแปลงให้ตัวอักษรพิมพ์ใหญ่ภายในข้อความให้เป็นตัวอักษรพิมพ์เล็กทั้งหมด
+        var inputLower = inputStr.toLowerCase();
+
+        // 3. ทําความสะอาดข้อความเพิ่มเติมด้วยการนําเครื่องหมาย “?” “!” “,” ออกจากข้อความ
+        var inputClean = inputLower.split('?').join('');
+        inputClean = inputClean.split('!').join('');
+        inputClean = inputClean.split(',').join('');
+
+        // 4. ตัดข้อความโดยใช้ “ “ (ช่องว่าง หรือ Whitespace) ภายในข้อความ
+        var inputSplit = inputClean.split(" ");
+        console.log(inputSplit);
+
+        // 5.แสดงผลในลักษณะของตารางแจกแจงความถี่ของคําแต่ละคําในข้อความออกมา (ต้องการเพียงแค่คําแต่ละคํามีความถี่เป็นเท่าใด)
+        let wordFreq = new Map();
+        for(var word of inputSplit){
+            if(wordFreq.has(word)){
+                wordFreq.set(word,wordFreq.get(word)+1)
+            }
+            else{
+                wordFreq.set(word, 1)
+            }
+        }
+        console.log(wordFreq);
+        let result = [];
+        wordFreq.forEach((values,keys)=>{
+            var freq = {
+                "word": keys,
+                "frequency": values
+            };
+            result.push(freq);
+        });
+        const outputString = JSON.stringify(result);
+        await fs.writeFile('./model/output.json', outputString, function (err) {
+            if (err) throw err;
+            console.log('JSON File Created!');
+        });
+        return [200,result]
     }
-
-
-
 }
 
-module.exports = account;
+module.exports = dataClean;
