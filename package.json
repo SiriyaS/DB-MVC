@@ -20,7 +20,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "mongodb": "^3.5.5",
     "mssql": "^6.1.0",
     "swagger-ui-express": "^4.1.4"
